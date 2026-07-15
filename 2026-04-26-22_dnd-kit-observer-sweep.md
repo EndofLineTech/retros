@@ -8,7 +8,7 @@
 
 ## Section 1: User Value Delivered
 
-A real user reporting unbounded memory growth (up to 5 GB on Edge) got a fix shipped to `dev` (v0.16.0-0071, PR #210, merge `9df46db0`) and a personalized retest request posted to gh #207 within ~1 hour of the PO opening the conversation. Heap leak rate on Channel Normalization went from ~2,400 KB/s to a small negative slope (GC working normally) per local Chromium verification; idle MutationObserver count went from 19 to 0. The fix swept all 9 `<DndContext>` mount sites in the codebase, not just the two reported, so future leaks of the same family on project-b Manager, Channels pane, ChannelDetail, and SubstitutionPairsEditor are pre-empted.
+A real user reporting unbounded memory growth (up to 5 GB on Edge) got a fix shipped to `dev` (v0.16.0-0071, PR #210, merge `9df46db0`) and a personalized retest request posted to gh #207 within ~1 hour of the PO opening the conversation. Heap leak rate on Channel Normalization went from ~2,400 KB/s to a small negative slope (GC working normally) per local Chromium verification; idle MutationObserver count went from 19 to 0. The fix swept all 9 `<DndContext>` mount sites in the codebase, not just the two reported, so future leaks of the same family on EPG Manager, Channels pane, ChannelDetail, and SubstitutionPairsEditor are pre-empted.
 
 But: the fix introduces a UX cost. Drag handles are now hidden until users click a "Reorder" button per section. That's a real cost borne by every user — including the majority on Chromium who never experienced the leak — to fix a problem only Edge-on-busy-instance users hit. We did not validate that cost with users; we ratified it because the leak severity (5 GB) overruled UX preservation. That's a defensible call but not a free one.
 

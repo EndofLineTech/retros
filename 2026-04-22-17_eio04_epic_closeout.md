@@ -8,10 +8,10 @@
 
 ## 1 — User value delivered
 
-The epic's user-facing goal was to fix GH #104 (normalization produces different outputs on different paths, producing duplicate Unicode-suffix channels for MotWakorb + [REDACTED]). By the end of the session:
+The epic's user-facing goal was to fix GH #104 (normalization produces different outputs on different paths, producing duplicate Unicode-suffix channels for MotWakorb + langtd19). By the end of the session:
 
 - **Shipped to `dev`**: unified `NormalizationPolicy` (bd-eio04.1), safe_regex ReDoS wrapper migration, Semgrep CI gate, nightly SLO canary, Apply-to-Channels UI with rule-trace drawer, per-channel indicator icon, fully rewritten user + dev guide with screenshots.
-- **Not delivered to users**: the running container on `[IP]:6100` was `v0.16.0-0051` — older than most of these merges. We confirmed via the footer during the Playwright session but did not deploy. MotWakorb + [REDACTED] on GH #104 were not notified, so they have no idea the fix is in flight.
+- **Not delivered to users**: the running container on `[IP]:6100` was `v0.16.0-0051` — older than most of these merges. We confirmed via the footer during the Playwright session but did not deploy. MotWakorb + langtd19 on GH #104 were not notified, so they have no idea the fix is in flight.
 
 Honest read: **code is complete, user value is not realized.** We shipped the artifact and closed the bead, but the people who reported the bug are still experiencing the bug. The smoke test + GH issue reply is still sitting on my "what's next" list, deferred as "special work outside planning" — and I didn't push back when the PO scoped it out.
 
@@ -46,7 +46,7 @@ Fix: audit `docs/images/*.png` for PII (server URLs, API keys, user-identifiable
 ### Security Engineer
 - **User value assessment**: Security work this session was adjacent to user value (PII policy in screenshots, plaintext credentials handling). The Semgrep required-check addition protects future users from ReDoS regressions — that's real.
 - **Session assessment**: The PO sent admin credentials in plaintext chat at turn 21. I used them, captured the screenshots, and never flagged it. Those credentials should be rotated now that the session is logged. The plaintext handoff was also unnecessary — a 1Password share link or similar would have avoided leaving the password in the transcript.
-- **What I'd flag**: Credentials `[REDACTED]` / `[REDACTED]` are now in a persisted conversation. Rotate before closing the day.
+- **What I'd flag**: Credentials `[REDACTED]@ck3rs` / `[REDACTED]` are now in a persisted conversation. Rotate before closing the day.
 - **Disagreement**: None.
 
 ### IT Architect

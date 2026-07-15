@@ -12,10 +12,10 @@
 
 The walking-skeleton crossed the line from "code that exists" to **"deployment that operators can actually run."** Specifically:
 
-- **`docker compose up -d` works.** Six-service stack (project-a-core + liquidsoap + icecast + postgres + meilisearch + valkey) with real image digests, per-service hardening, healthchecks, depends_on conditions, named volumes, read-only music bind. An operator can `git clone && project-a init && docker compose up -d` and have a TLS-ready, auth-enforcing, observable project-a.
+- **`docker compose up -d` works.** Six-service stack (adagio-core + liquidsoap + icecast + postgres + meilisearch + valkey) with real image digests, per-service hardening, healthchecks, depends_on conditions, named volumes, read-only music bind. An operator can `git clone && adagio init && docker compose up -d` and have a TLS-ready, auth-enforcing, observable Adagio.
 - **Real bearer auth enforced** on `/api/v1/*`. Schemathesis no longer skips `ignored_auth` — the contract gate honestly validates that protected endpoints actually require tokens. Operators (and third-party client devs) get the security posture documented in ADR-0005.
 - **Four reverse-proxy reference configs** (Caddy, nginx, Traefik, Pangolin) with operator decision-tree. An operator running nginx for the first time can copy the snippet, replace the domain, and deploy without writing TLS / SSE / log-redaction config from scratch.
-- **First-run secret bootstrap.** `project-a init` generates 8 secrets (master key, JWT signing key, infrastructure passwords, control tokens) atomically, idempotently, into a 0o600 `.env`. The "you must back these up offline" warning is loud and correct.
+- **First-run secret bootstrap.** `adagio init` generates 8 secrets (master key, JWT signing key, infrastructure passwords, control tokens) atomically, idempotently, into a 0o600 `.env`. The "you must back these up offline" warning is loud and correct.
 - **Static + runtime defenses against credential-leakage in logs**, with both rules sharing a single source-of-truth so they can't drift. Future engineers can't accidentally `log.info(token=...)` or write a metric with `user_id` as a label without the lint catching it.
 - **Style-guide ratchets** (depth-cap rule, lint/runtime sync rule) added on the same PR as the code that motivated them — future regressions of these specific failure modes are now Block-level findings.
 
@@ -25,9 +25,9 @@ This is shippable for an alpha/preview. The remaining gaps (DB schema, Phase 4 b
 
 ## Section 2: What We Did Well Together
 
-**The SLO reframe.** Mid-session, I framed `dfh` as a normal "PO ratifies the proposed numbers" decision. The PO's response — *"Wait. We're not hosting this for people so why do we care about an SLO/on-call?"* — challenged the entire framing, not just the implementation. I agreed without defensiveness, did the cleanup across 8 files (PLAN.md §11 + §18, monitoring.md, observability.md, glossary.md, python.md, ADR-0021, c8h bead), and the result is honest: project-a doesn't carry SaaS commitments, performance numbers stay as contributor budgets + operator default thresholds, burn-rate alerts deliberately not shipped.
+**The SLO reframe.** Mid-session, I framed `dfh` as a normal "PO ratifies the proposed numbers" decision. The PO's response — *"Wait. We're not hosting this for people so why do we care about an SLO/on-call?"* — challenged the entire framing, not just the implementation. I agreed without defensiveness, did the cleanup across 8 files (PLAN.md §11 + §18, monitoring.md, observability.md, glossary.md, python.md, ADR-0021, c8h bead), and the result is honest: Adagio doesn't carry SaaS commitments, performance numbers stay as contributor budgets + operator default thresholds, burn-rate alerts deliberately not shipped.
 
-That's the gold standard of PO interaction. The numbers themselves were fine — what was wrong was the SaaS-shaped wrapper around them. A retroactive challenge to the framing saved a class of confusion (operators thinking project-a commits to 99.5% uptime; the c8h alert rules being designed against an SLO project-a doesn't have).
+That's the gold standard of PO interaction. The numbers themselves were fine — what was wrong was the SaaS-shaped wrapper around them. A retroactive challenge to the framing saved a class of confusion (operators thinking Adagio commits to 99.5% uptime; the c8h alert rules being designed against an SLO Adagio doesn't have).
 
 ---
 
@@ -45,7 +45,7 @@ Concrete ask: when reviewing a multi-persona team-plan output, set aside one pas
 
 ## Section 4: What the Agent Got Wrong
 
-**During the auth-branch merge, I drifted into the wrong worktree filesystem and committed the merge on the wrong branch.** The merge command `git merge --no-ff worktree-agent-a9b0b1fe389926b97 ...` ran from inside `/home/[REDACTED]/code/project-a-stream-server/.claude/worktrees/agent-ac3c0a5139a0595af` (the critical-path worktree, which had already been merged and shouldn't have been mutated further). The git commit output even told me — `[worktree-agent-ac3c0a5139a0595af c4eb43f] Merge: auth model...` — and I missed that prefix until the next `git log` made it obvious.
+**During the auth-branch merge, I drifted into the wrong worktree filesystem and committed the merge on the wrong branch.** The merge command `git merge --no-ff worktree-agent-a9b0b1fe389926b97 ...` ran from inside `/home/[REDACTED]/code/adagio-stream-server/.claude/worktrees/agent-ac3c0a5139a0595af` (the critical-path worktree, which had already been merged and shouldn't have been mutated further). The git commit output even told me — `[worktree-agent-ac3c0a5139a0595af c4eb43f] Merge: auth model...` — and I missed that prefix until the next `git log` made it obvious.
 
 Recovery was clean (`git reset --hard 1c7ad27` on the critical-path worktree, `cd` back to repo root, redo the merge) but the mistake was avoidable. The proximate cause: bash sessions persist working directory across commands; somewhere in the merge prep my cwd had drifted (most likely from an earlier `cd web && npm install` that I never explicitly cd'd back from in a *subsequent* command sequence). The deeper cause: I didn't verify `pwd && git branch --show-current` before starting a merge while three worktrees were in play. The lesson: any time worktrees are involved, always confirm both before destructive git ops. I'll write this into CLAUDE.md if I catch myself doing it again.
 
@@ -82,7 +82,7 @@ Filing as a follow-up bead recommendation; I won't ship it without authorization
 - **Disagreement**: I disagreed with the DCO Block-to-Warn downgrade. Asymmetric DCO (some commits signed, some not) is the worst posture for git provenance — it tells future contributors "we don't really mean it." Either retroactively sign with `git rebase --signoff` (one-time cost) or drop the requirement from CONTRIBUTING.md. The current state where the agent quietly downgraded the Block based on "it's not actually enforced" is policy-laundering.
 
 ### IT Architect
-- **User value assessment**: project-a is now actually deployable. The compose stack lands the architecture decisions from PLAN.md as runnable infrastructure. Operators don't reverse-engineer ADRs.
+- **User value assessment**: Adagio is now actually deployable. The compose stack lands the architecture decisions from PLAN.md as runnable infrastructure. Operators don't reverse-engineer ADRs.
 - **Session assessment**: Architecture decisions from prior phases held up under implementation pressure. Per-service hardening, sidecar pattern, image pinning by digest, internal-network defaults — all came from existing ADRs and didn't need re-litigation.
 - **What I'd flag**: B2 surfaced a real arch gap — bind-safety guard was designed for non-Docker host binds and doesn't gracefully accommodate compose's private-network [IP] semantics. The env-var workaround is acceptable; the `jxg` follow-up (extending the guard to recognize Docker private subnets) needs to land before the next operator hits it. This is the kind of finding that means the original `5cr.17` design didn't fully consider the compose deployment path.
 - **Disagreement**: The multi-agent dispatch pattern is efficient when branches converge cleanly, but the merge complexity (CHANGELOG conflicts every time, .beads/issues.jsonl noise, the wrong-worktree drift) eats some of the time saved. For batches of 3+ agents I'd recommend serial dispatch unless the work is genuinely disjoint.
@@ -101,7 +101,7 @@ Filing as a follow-up bead recommendation; I won't ship it without authorization
 
 ### UX Designer
 - **User value assessment**: No SPA work this session. Operator-facing UX (CLI errors, runbook decision-tree, reverse-proxy README) got real attention. The "which proxy should I pick" decision-tree is genuinely useful for operator decision-making.
-- **Session assessment**: Operator-facing surfaces stayed coherent. The `project-a init` warning about offline-backup is loud and correct. Error envelope codes per ADR-0010 are surfacing on auth endpoints.
+- **Session assessment**: Operator-facing surfaces stayed coherent. The `adagio init` warning about offline-backup is loud and correct. Error envelope codes per ADR-0010 are surfacing on auth endpoints.
 - **What I'd flag**: 5cr.43 (empty/error/loading state pattern library) is still in the ready queue and doesn't have a designer assigned. UX work continues to be deferred. The walking-skeleton has no SPA UI yet, so this is fine NOW, but the deferred backlog is real.
 - **Disagreement**: None active.
 
@@ -121,7 +121,7 @@ Filing as a follow-up bead recommendation; I won't ship it without authorization
 - **User value assessment**: Healthchecks (`ftt`) work end-to-end with distinct semantics. Metrics framework (`mj5`) emits real Prometheus exposition with cardinality enforcement. OTel SDK wired but env-gated off — operator opt-in. Compose has healthchecks on every service with `depends_on: condition: service_healthy`. Operators can run this with confidence.
 - **Session assessment**: The /healthz vs /readyz vs /startupz distinction held under implementation pressure (no info-disclosure leak from /healthz, ACL-locked /readyz/startupz/metrics). The "burn-rate alerts deliberately not shipped" decision in the SLO reframe is honest and right for a self-hosted product.
 - **What I'd flag**: The icecast tmpfs UID mismatch (W2 follow-up) is exactly the kind of smoke-test finding that's caught by `docker compose up && check container actually starts` — which we don't have an integration test for yet. Walking-skeleton testing exercises code paths but not container-startup paths. Worth thinking about a minimal "compose up + healthchecks all green" integration test that runs in CI nightly.
-- **Disagreement**: I disagreed with the SLO reframe at first read. Self-hosted ≠ no operational hygiene. Operators STILL need SLOs (their own) to run project-a responsibly. But on reflection, repositioning the numbers as "performance budgets / default thresholds" is a fair middle ground — project-a commits to operator-facing performance targets, not to a SaaS-shaped uptime SLA. I'd want PLAN.md §11 to explicitly say operators SHOULD define their own SLOs against project-a's metrics, not just "could."
+- **Disagreement**: I disagreed with the SLO reframe at first read. Self-hosted ≠ no operational hygiene. Operators STILL need SLOs (their own) to run Adagio responsibly. But on reflection, repositioning the numbers as "performance budgets / default thresholds" is a fair middle ground — Adagio commits to operator-facing performance targets, not to a SaaS-shaped uptime SLA. I'd want PLAN.md §11 to explicitly say operators SHOULD define their own SLOs against Adagio's metrics, not just "could."
 
 ### QA Engineer
 - **User value assessment**: Schemathesis with real bearer enforcement (auth `ignored_auth` removed) means the contract gate now validates that auth actually works. Real bug-catching, not coverage theater.
