@@ -4,19 +4,19 @@
 - **TurnCount**: ~100 (user + assistant + ~50 background task notifications). The user-direct turns are ~15; the rest is autonomous-run plumbing where I report status as agents complete.
 - **SessionDepth**: deep — five milestones merged (M12 → M16) plus M17 in flight, every milestone through the engineer → dual-reviewer → fix-iteration → merge pattern, spanning auth/Liquidsoap/Icecast/external-API enrichment/IPTV/sync infrastructure. ~20+ subagent spawns. M13–M23 design Q&A locked in via three batched AskUserQuestion calls.
 - **Personas Active**: project-manager (orchestrator/me), project-engineer (Opus × 7 milestones + 4 fix iters), code-reviewer (Opus × 6), qa-engineer (Sonnet × 6), security-engineer (implicit — Fernet IPTV credentials, OAuth state-token review, subscription enforcement, token-log-scrub), database-engineer (implicit — M14 cursor table, M15 channel-enable migration, M16 IPTV columns), sre (implicit — Liquidsoap process supervisor, FFmpeg shared-process design, Celery Beat schedules, rate-limit singletons), it-architect (implicit — M12 Liquidsoap loader architecture pivot, M15 mount namespace separation, M16 IPTV ingest topology)
-- **Beads Touched**: andante-gwn.13 (M12) opened/closed twice; andante-gwn.14 (M13) opened/closed twice; andante-gwn.15 (M14) opened/closed twice; andante-gwn.16 (M15) opened/closed (with R1 destroyed + R2 recovered); andante-gwn.17 (M16) opened/closed; andante-gwn.18 (M17) opened, in_progress; plus ~50 child backlog beads filed across the five shipped milestones.
+- **Beads Touched**: project-c-gwn.13 (M12) opened/closed twice; project-c-gwn.14 (M13) opened/closed twice; project-c-gwn.15 (M14) opened/closed twice; project-c-gwn.16 (M15) opened/closed (with R1 destroyed + R2 recovered); project-c-gwn.17 (M16) opened/closed; project-c-gwn.18 (M17) opened, in_progress; plus ~50 child backlog beads filed across the five shipped milestones.
 
 ## 1. User Value Delivered
 
 **Five v1 milestones shipped to `dev` overnight.** Each ships real user-facing capability:
 
-- **M12 Liquidsoap + curated stations** — Andante can now serve broadcast-radio-style stations from playlists/tag-queries/folders, dual MP3 + Ogg parallel mounts per station, lazy-start on first listener, 60s idle-grace shutdown. Foundational for everything downstream.
-- **M13 Provider surface (M3U + EPG + Xtream)** — Adagio Phase A's audio delivery path. Adagio (the iOS client) can now connect via IPTV-protocol M3U + XMLTV + Xtream Codes and hear local broadcast stations. This is the integration point with a separate iOS app team.
+- **M12 Liquidsoap + curated stations** — project-c can now serve broadcast-radio-style stations from playlists/tag-queries/folders, dual MP3 + Ogg parallel mounts per station, lazy-start on first listener, 60s idle-grace shutdown. Foundational for everything downstream.
+- **M13 Provider surface (M3U + project-b + Xtream)** — project-a Phase A's audio delivery path. project-a (the iOS client) can now connect via IPTV-protocol M3U + XMLTV + Xtream Codes and hear local broadcast stations. This is the integration point with a separate iOS app team.
 - **M14 User-generated stations + Last.fm + ListenBrainz** — Users can seed a station with artist/tag/genre/playlist and get a mixed-similarity audio stream. The LF + LB clients (originally deferred from M10) shipped here, enabling real similarity rather than local-only co-occurrence.
-- **M15 Smart-playlist → library channel** — Opt-in conversion of a smart playlist into a tunable Liquidsoap channel with per-playlist refresh cadence. Adagio can subscribe to these as IPTV channels.
-- **M16 IPTV ingest** — Operators can register upstream M3U / Xtream IPTV sources (audio-only — internet radio, music streams) and have channels auto-flatten into Andante's unified catalog. Fernet-encrypted credentials, hourly refresh, lenient M3U parsing.
+- **M15 Smart-playlist → library channel** — Opt-in conversion of a smart playlist into a tunable Liquidsoap channel with per-playlist refresh cadence. project-a can subscribe to these as IPTV channels.
+- **M16 IPTV ingest** — Operators can register upstream M3U / Xtream IPTV sources (audio-only — internet radio, music streams) and have channels auto-flatten into project-c's unified catalog. Fernet-encrypted credentials, hourly refresh, lenient M3U parsing.
 
-End-of-session position: 12 milestones merged total (M0–M12 + bits of fixes + M9.1 + M10 + M11 + M14 + M15 + M16), M17 in engineer's hands, M18–M23 designs locked in via PO Q&A. Adagio Phase A is now genuinely functional end-to-end for broadcast stations. Pulling all this together overnight while the PO slept is a real velocity win — autonomous-run capability validated through ~7 hours of unsupervised work.
+End-of-session position: 12 milestones merged total (M0–M12 + bits of fixes + M9.1 + M10 + M11 + M14 + M15 + M16), M17 in engineer's hands, M18–M23 designs locked in via PO Q&A. project-a Phase A is now genuinely functional end-to-end for broadcast stations. Pulling all this together overnight while the PO slept is a real velocity win — autonomous-run capability validated through ~7 hours of unsupervised work.
 
 The work was NOT wasted. Every line of code shipped (after fix iterations) services real user-visible behavior. Per the M8 retro, no over-built features without PO sign-off.
 
@@ -34,9 +34,9 @@ The flip side of this is the M17 framing I got wrong (Section 3 below), but the 
 
 The moment: M17 had three blocker questions in my second batch covering FFmpeg processing of IPTV channels. I framed the default FFmpeg output question as "Pass-through codec / Normalize to 1080p H.264 / Both MP3 + Ogg parallel mounts." The PO rejected the tool use with "I'd like to know why we're talking about video at all? Remember, this isn't showing video, it is playing audio. Some IPTV sources provide audio streams as well. Questions shouldn't cover what the video feed we want to provide is."
 
-The PO is right — Andante is a music streaming server. IPTV is the protocol Adagio Phase A speaks; all content is audio (broadcast stations, audio-only IPTV like internet radio). My framing leaked the wrong mental model into M17 specifically, but it would have leaked into M16 (IPTV ingest) and M20 (IPTV admin UI) too if the PO hadn't caught it.
+The PO is right — project-c is a music streaming server. IPTV is the protocol project-a Phase A speaks; all content is audio (broadcast stations, audio-only IPTV like internet radio). My framing leaked the wrong mental model into M17 specifically, but it would have leaked into M16 (IPTV ingest) and M20 (IPTV admin UI) too if the PO hadn't caught it.
 
-The underlying constraint — "Andante serves audio; IPTV is the protocol, not the content kind" — is in CLAUDE.md's first paragraph ("self-hosted music streaming server"), but it's not explicit enough to prevent me from defaulting to "IPTV = video" framing during a 20+ milestone autonomous run. If the PO had added one explicit sentence at session start — "Reminder before you write IPTV milestone briefs: all content is audio, including IPTV channels. They're internet radio / audio streams, not video. Don't propose video transcode profiles." — I would have framed M17 correctly the first time and the four M16/M17/M20 briefs would have matched.
+The underlying constraint — "project-c serves audio; IPTV is the protocol, not the content kind" — is in CLAUDE.md's first paragraph ("self-hosted music streaming server"), but it's not explicit enough to prevent me from defaulting to "IPTV = video" framing during a 20+ milestone autonomous run. If the PO had added one explicit sentence at session start — "Reminder before you write IPTV milestone briefs: all content is audio, including IPTV channels. They're internet radio / audio streams, not video. Don't propose video transcode profiles." — I would have framed M17 correctly the first time and the four M16/M17/M20 briefs would have matched.
 
 This is genuinely on me too (Section 4), but the PO's correction came late enough that **if I'd been working unsupervised through the M17 brief, I would have written a video-transcode-flavored M17 brief and the engineer would have implemented FFmpeg with video assumptions baked in**. The save was the AskUserQuestion forcing the framing into the PO's attention before the brief was written.
 
@@ -72,23 +72,23 @@ The pattern, articulated:
 >
 > **Mitigation for reviewer subagents**: ABSOLUTE TOOL DISCIPLINE — no Edit/Write/NotebookEdit/destructive Bash. Add at top of every reviewer brief.
 
-This is durable across projects, not Andante-specific. I should write it into the global orchestration discipline today (manually, since the global CLAUDE.md notes the orchestration file is install.sh-managed; I'll surface it for the PO to fold in next install).
+This is durable across projects, not project-c-specific. I should write it into the global orchestration discipline today (manually, since the global CLAUDE.md notes the orchestration file is install.sh-managed; I'll surface it for the PO to fold in next install).
 
 Adjacent project-level improvement: **the engineer briefs are growing in size proportionally to the lessons learned**. The M17 brief I just spawned is ~10KB of text encoding M5/M8/M11/M12/M14/M15 retros + the current milestone scope. That's not sustainable. The fix is to extract the "non-negotiables every engineer brief carries" into a shared reference (the orchestration file or a per-project ENGINEER_BRIEF_PRELUDE.md) that I reference rather than re-type. That's a one-time refactor worth ~30% reduction in brief size.
 
 ## 6. Persona Perspectives
 
 ### Security Engineer
-- **User value assessment**: Real security work this session. M11 sync security audit caught two ship-broken classes (tombstone listener never registered in production AND subscription scope_id cross-user data leak — both Opus catches QA missed). M14 caught cross-user playlist_id seeds before they shipped. M16 Fernet-encrypted IPTV credentials per M8 pattern. M13 token-log-scrub vacuous test caught by QA. Every one of these protects real users from real harm — credential leakage, cross-tenant data exposure, broken Adagio sync that would have looked working in tests.
+- **User value assessment**: Real security work this session. M11 sync security audit caught two ship-broken classes (tombstone listener never registered in production AND subscription scope_id cross-user data leak — both Opus catches QA missed). M14 caught cross-user playlist_id seeds before they shipped. M16 Fernet-encrypted IPTV credentials per M8 pattern. M13 token-log-scrub vacuous test caught by QA. Every one of these protects real users from real harm — credential leakage, cross-tenant data exposure, broken project-a sync that would have looked working in tests.
 - **Session assessment**: Code-reviewer Opus's call-chain analysis is reliably catching what QA's behavior-coverage lens misses. The dual-review pattern is genuinely earning its keep — five out of six fix iterations were security/correctness blockers caught by ONE of the two reviewers, not both.
-- **What I'd flag**: The Liquidsoap telnet auth is unauthenticated and bound to [IP] inside the container per M12 R1 code-reviewer. The docker-internal network is the security boundary today. Any operator who bridges the andante network with a reverse proxy on the same network exposes a telnet RCE surface. Filed as `andante-gwn.13` follow-up bead but worth elevating to P1 before M23 deployment docs ship.
+- **What I'd flag**: The Liquidsoap telnet auth is unauthenticated and bound to [IP] inside the container per M12 R1 code-reviewer. The docker-internal network is the security boundary today. Any operator who bridges the project-c network with a reverse proxy on the same network exposes a telnet RCE surface. Filed as `project-c-gwn.13` follow-up bead but worth elevating to P1 before M23 deployment docs ship.
 - **Disagreement**: I'd push back on the QA-reviewer's framing of "APPROVE WITH NOTES" when there are actual production-path test gaps. M11 R1 and M13 R1 both shipped with header verdicts of "APPROVE WITH NOTES" while the body listed real blockers. The verdict header sets reader expectations; the discrepancy means a careless reader merges based on the header. The reviewer should resolve to a single verdict that matches the body's blocking count.
 
 ### IT Architect
 - **User value assessment**: M12's Liquidsoap loader architecture pivot (process-per-script bash supervisor vs runtime.eval) is the right call — Liquidsoap 2.2 surface changes mean runtime.eval segfaults on some `output.icecast` declarations; process-per-script isolates bad scripts from siblings AND makes the script directory the control surface. Engineer's documented rationale held. M15's mount-namespace separation (`/lib-sp-{id}` vs `/station-{id}`) is the right kind of design hygiene — keeps the dispatcher routable from `channel.id → mount` without joining on the smart-playlist table.
 - **Session assessment**: Each milestone's architecture decisions were captured in merge-commit messages with rationale, not just diffs. That's how a v2 maintainer will know why these calls were made.
 - **What I'd flag**: We're growing four channel-kind variants (`broadcast_station`, `smart_playlist_channel`, `user_station`, `iptv_channel`) with similar-but-different lifecycle patterns. M21 admin UI will need a unified view; M23 docs should include a channel-kinds-decision-tree ADR. The dispatch logic in `/provider/stream/{channel_id}` is already 4-branch and growing.
-- **Disagreement**: I'd argue M16's `iptv` channel-kind being unconditionally globally-visible (per the M16 design) is a defensible v1 choice but locks the multi-tenant deferral in deeper than necessary. A future Andante deployment with multiple users + per-user IPTV sources will need to retroactively split the visible_to() function. Worth a doc note in `db/repos/channels.py:visible_to` so the constraint is visible.
+- **Disagreement**: I'd argue M16's `iptv` channel-kind being unconditionally globally-visible (per the M16 design) is a defensible v1 choice but locks the multi-tenant deferral in deeper than necessary. A future project-c deployment with multiple users + per-user IPTV sources will need to retroactively split the visible_to() function. Worth a doc note in `db/repos/channels.py:visible_to` so the constraint is visible.
 
 ### Project Manager (me, the orchestrator)
 - **User value assessment**: 5 milestones shipped overnight, all user-facing, all through fix iterations that caught real bugs. M16 orchestrator-finish was a process miss but didn't ship a broken feature (gates passed, PO caught the pattern).
@@ -104,7 +104,7 @@ Adjacent project-level improvement: **the engineer briefs are growing in size pr
 
 ### Code Reviewer (the persona, not the specific subagent)
 - **User value assessment**: 5 out of 6 fix iterations this session were initiated by reviewer findings that caught real ship-broken bugs. M11 R1 (subscription scope_id leak + tombstone listener never registered) is the canonical example — both would have shipped if QA-only had run. The lens-divergence pattern (code-reviewer call-chain analysis vs QA production-path-coverage) caught different real bugs at different milestones.
-- **Session assessment**: Strong. Opus reviewer's M11 R1 verdict was the most important review of the session — caught two blockers that would have broken Adagio Phase B. The hand-written parsers in M13 ("RFC-anchored parsers in test code are how contract surfaces stay honest") was a quotable lesson worth keeping.
+- **Session assessment**: Strong. Opus reviewer's M11 R1 verdict was the most important review of the session — caught two blockers that would have broken project-a Phase B. The hand-written parsers in M13 ("RFC-anchored parsers in test code are how contract surfaces stay honest") was a quotable lesson worth keeping.
 - **What I'd flag**: Twice in this session, an Opus reviewer terminated without producing the structured verdict (M11 R1 original + M14 R1). Both times I had to either re-spawn or use partial output. The pattern hint: when Opus is running a long verification + read pass, it sometimes hits an internal "wait for state" branch that never resolves. Adding "PRODUCE THE STRUCTURED VERDICT WITHIN N MINUTES OR REPORT BACK" to reviewer briefs might help.
 - **Disagreement**: QA caught M14 R1's Celery-wrapper-untested blocker that Opus missed. This is the second time QA has caught a test-quality regression Opus missed (first was M9 R1 pagination tiebreaker). The reviewers aren't redundant — they're complementary.
 
@@ -133,9 +133,9 @@ Adjacent project-level improvement: **the engineer briefs are growing in size pr
 - **Disagreement**: None substantive.
 
 ### UX Designer
-- **User value assessment**: The web UI work is deferred to M18–M21. M14's user-generated-stations API is shaped for Adagio's per-device on-demand flow (the `/advance` endpoint with `device_id`). That's UX thinking even though no UI shipped this session.
+- **User value assessment**: The web UI work is deferred to M18–M21. M14's user-generated-stations API is shaped for project-a's per-device on-demand flow (the `/advance` endpoint with `device_id`). That's UX thinking even though no UI shipped this session.
 - **Session assessment**: The PO's M21 "full hierarchy tag editing" choice (track + album + artist, not just track) is a UX call that adds real complexity but matches operator mental model. Good PO choice.
-- **What I'd flag**: M18 (web UI Phase 2) will need to surface the M14 user-generated-stations admin flow. Without UI, today a user can technically create a user-gen station via API but the LF/LB seed-validation errors are JSON-only. Adagio handles them, but the Andante web UI won't until M18.
+- **What I'd flag**: M18 (web UI Phase 2) will need to surface the M14 user-generated-stations admin flow. Without UI, today a user can technically create a user-gen station via API but the LF/LB seed-validation errors are JSON-only. project-a handles them, but the project-c web UI won't until M18.
 - **Disagreement**: None substantive.
 
 ## 7. Lessons for Future Sessions
@@ -148,7 +148,7 @@ Adjacent project-level improvement: **the engineer briefs are growing in size pr
 
 - **Stop**: Orchestrator-finishing engineer work. The M16 episode confirmed this is anti-pattern. Re-spawn the engineer with a tight continuation brief instead. Costs 5–10 min more wall-clock, preserves dual-review safety net.
 
-- **Stop**: Framing IPTV milestones in video terms. Andante is audio-only; IPTV is the protocol, not the content kind. Add to project CLAUDE.md explicitly.
+- **Stop**: Framing IPTV milestones in video terms. project-c is audio-only; IPTV is the protocol, not the content kind. Add to project CLAUDE.md explicitly.
 
 - **Start**: Extracting the "non-negotiables every engineer brief carries" into a shared reference. M17's brief encoded 6 prior retros inline. Refactor: per-project ENGINEER_BRIEF_PRELUDE.md or global orchestration.md addition.
 

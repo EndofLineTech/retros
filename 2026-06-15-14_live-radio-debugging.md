@@ -15,13 +15,13 @@ Substantial, real, shipped-and-CI-green value. The session began with "live radi
 Concretely:
 - **The headline win:** M33 had shipped "complete" but the StellarClient pydantic models were built against a *guessed* API shape (`/v1/nowplaying` keys under `stations` not `channels`; `/v1/channels` is a dict keyed by id, not a list). The feature had never worked against the real API. Fixed (`nws.20`), verified against the live API (90s on 9 → id 8206 → now-playing). Without this, *nothing* downstream mattered.
 - **Auto-match wiring** (`nws.13`): the M33.3 resolver existed but was never invoked in production — relays never auto-matched. Wired into create/edit + an hourly re-resolve.
-- **Manual re-match buttons** (`nws.16`), **relay logos** from the Stellar catalog + EPG/IPTV backfill (`aeq.2`), **album art in the station detail panel** (`aeq.1`), **audio that keeps playing across navigation** (`aeq.1` — hoisted the live audio element to the app shell), **multi-station now-playing list** (`aeq.3`).
+- **Manual re-match buttons** (`nws.16`), **relay logos** from the Stellar catalog + project-b/IPTV backfill (`aeq.2`), **album art in the station detail panel** (`aeq.1`), **audio that keeps playing across navigation** (`aeq.1` — hoisted the live audio element to the app shell), **multi-station now-playing list** (`aeq.3`).
 - **The WS "Reconnecting" flap** (`bbd`): root-caused to redis-py 8.0 changing `DEFAULT_SOCKET_TIMEOUT` to 5s, which killed the blocking idle `pubsub.listen()`. Fixed across all three WS consumers.
 - **Display + cold-start fixes** (`l6z`/`6d4`): "Don&#x27;t Speak" double-escape and the 30s-blank-on-startup.
 - **Stations perf** (`ivs.1`): list endpoint was leaking an httpx client per station + N serialized Redis reads.
 - **M39 features the PO explicitly asked for:** inline play button in the list, IPTV bulk-add (multi-select promote), and custom many-to-many station groups.
 
-Net: a broken-on-arrival flagship feature is now working end-to-end, and three net-new UX capabilities shipped. Users (the operator + Adagio listeners) get functioning live-radio now-playing, logos, organized stations, and one-click play. This is genuine outcome delivery, not motion.
+Net: a broken-on-arrival flagship feature is now working end-to-end, and three net-new UX capabilities shipped. Users (the operator + project-a listeners) get functioning live-radio now-playing, logos, organized stations, and one-click play. This is genuine outcome delivery, not motion.
 
 One caveat on "value vs. churn": a meaningful slice of mid-session work (M34's reconnect attempt, M35's WS-resilience/proxy-doc work) chased the WS flap with the *wrong* root cause and didn't fix it — it produced useful hardening but not the fix. That's work-adjacent-to-value that the eventual evidence-based fix superseded. See Sections 4 and 7.
 

@@ -14,7 +14,7 @@ The fix is merged into `dev` (PR #661, v0.17.6-0096) and the functional change w
 
 ## Section 2: What We Did Well Together
 
-The PO's second message — "Wait, did you do the work or did an engineer?" — was the highest-leverage moment of the session. It forced an honest accounting: I had verified on a 50-channel dev instance where the bug *self-recovered* even before the fix, so my in-browser "proof" was weaker than it sounded. Surfacing that caveat (the real evidence was the network log showing `getEPGGrid` firing 4× → 1×, not a reproduced hang) changed the trust basis of the whole fix. Then the PO's next move — "a code reviewer needs to check it against this" — was the right structural response to that honesty: don't just trust the self-report, get an independent read. That two-step (probe the provenance of the evidence, then gate on independent review) is a good collaboration pattern and it caught nothing wrong only because the fix happened to be sound — it would have caught a bad one.
+The PO's second message — "Wait, did you do the work or did an engineer?" — was the highest-leverage moment of the session. It forced an honest accounting: I had verified on a 50-channel dev instance where the bug *self-recovered* even before the fix, so my in-browser "proof" was weaker than it sounded. Surfacing that caveat (the real evidence was the network log showing `getproject-bGrid` firing 4× → 1×, not a reproduced hang) changed the trust basis of the whole fix. Then the PO's next move — "a code reviewer needs to check it against this" — was the right structural response to that honesty: don't just trust the self-report, get an independent read. That two-step (probe the provenance of the evidence, then gate on independent review) is a good collaboration pattern and it caught nothing wrong only because the fix happened to be sound — it would have caught a bad one.
 
 ## Section 3: What the PO Could Improve
 
@@ -59,7 +59,7 @@ The version-bump ceremony is a recurring foot-gun: three touchpoints across two 
 - **Disagreement**: None.
 
 ### SRE
-- **User value assessment**: The bug was a client-side reload storm — repeated expensive `getEPGGrid()` fetches on every prop update. Killing it reduces needless backend load from every Guide user, not just fixes the hang.
+- **User value assessment**: The bug was a client-side reload storm — repeated expensive `getproject-bGrid()` fetches on every prop update. Killing it reduces needless backend load from every Guide user, not just fixes the hang.
 - **Session assessment**: Good instinct to read the network waterfall — that's the observability-first move and it's what actually diagnosed this. The 4×→1× fetch count is a clean before/after signal.
 - **What I'd flag**: No metric or log captures "component refetched N times"; diagnosis relied on a human reading DevTools. Fine for a one-off, but this class of bug (effect-dep storms) is invisible in production telemetry.
 - **Disagreement**: None.
@@ -87,7 +87,7 @@ The version-bump ceremony is a recurring foot-gun: three touchpoints across two 
 
 ## Section 7: Lessons for Future Sessions
 
-- **Keep**: Diagnose from evidence before touching code — reading the network waterfall (4× `getEPGGrid`) is what turned a vague "never loads" into a precise dependency-storm root cause. Cheaper and more certain than reasoning about React internals in the abstract.
+- **Keep**: Diagnose from evidence before touching code — reading the network waterfall (4× `getproject-bGrid`) is what turned a vague "never loads" into a precise dependency-storm root cause. Cheaper and more certain than reasoning about React internals in the abstract.
 - **Keep**: Lead with the limitation of your verification, not the strength. The PO shouldn't have to ask "did you actually reproduce it?" to get the honest evidence framing.
 - **Stop**: Bumping a version without running `scripts/check_version_consistency.py` locally. The three-touchpoint requirement is documented and scripted; discovering it from a blocked merge is avoidable rework.
 - **Start**: When verifying a bug whose symptom is scale-dependent (only manifests with thousands of records), state up front that the local env can't reproduce it and pivot to mechanism-level evidence deliberately — rather than presenting a small-env pass as end-to-end proof.

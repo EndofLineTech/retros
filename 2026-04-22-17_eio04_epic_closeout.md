@@ -8,10 +8,10 @@
 
 ## 1 — User value delivered
 
-The epic's user-facing goal was to fix GH #104 (normalization produces different outputs on different paths, producing duplicate Unicode-suffix channels for MotWakorb + langtd19). By the end of the session:
+The epic's user-facing goal was to fix GH #104 (normalization produces different outputs on different paths, producing duplicate Unicode-suffix channels for MotWakorb + [REDACTED]). By the end of the session:
 
 - **Shipped to `dev`**: unified `NormalizationPolicy` (bd-eio04.1), safe_regex ReDoS wrapper migration, Semgrep CI gate, nightly SLO canary, Apply-to-Channels UI with rule-trace drawer, per-channel indicator icon, fully rewritten user + dev guide with screenshots.
-- **Not delivered to users**: the running container on `[IP]:6100` was `v0.16.0-0051` — older than most of these merges. We confirmed via the footer during the Playwright session but did not deploy. MotWakorb + langtd19 on GH #104 were not notified, so they have no idea the fix is in flight.
+- **Not delivered to users**: the running container on `[IP]:6100` was `v0.16.0-0051` — older than most of these merges. We confirmed via the footer during the Playwright session but did not deploy. MotWakorb + [REDACTED] on GH #104 were not notified, so they have no idea the fix is in flight.
 
 Honest read: **code is complete, user value is not realized.** We shipped the artifact and closed the bead, but the people who reported the bug are still experiencing the bug. The smoke test + GH issue reply is still sitting on my "what's next" list, deferred as "special work outside planning" — and I didn't push back when the PO scoped it out.
 

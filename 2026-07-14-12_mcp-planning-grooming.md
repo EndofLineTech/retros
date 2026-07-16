@@ -85,7 +85,7 @@ Beyond process, the biggest *architectural* concern the session surfaced is real
 - **Disagreement**: None material — the in-process single-writer story was accepted by all.
 
 ### SRE
-- **User value assessment**: The "refuse-mount, never process-exit" call protects users from an MCP misconfig crash-looping the whole EPG generator. Real reliability value.
+- **User value assessment**: The "refuse-mount, never process-exit" call protects users from an MCP misconfig crash-looping the whole project-b generator. Real reliability value.
 - **Session assessment**: Ops concerns were calibrated to the home-lab/small-team tier without gold-plating.
 - **What I'd flag**: The stale-lock remediation must keep `/health` at 200 (observable) rather than non-2xx, or Docker's healthcheck would restart the container — a subtlety easy to get wrong.
 - **Disagreement**: With any push to run MCP as a separate process — rejected on the no-supervisor reality.

@@ -4,7 +4,7 @@
 - **TurnCount**: ~85 messages (deep session; estimate — many multi-tool assistant turns). Notably, every blocking defect this session was caught *after* turn 40 — in the M27 build, not the planning.
 - **SessionDepth**: deep — two milestones planned + groomed, one spike, two milestones built-and-merged (M26, M27), plus diagnosis of a live bug and planning of two more milestones (M28/M29). Spanned the full stack: Alembic migration, scanner internals, destructive DB ops, FastAPI endpoints, React UI, in-Docker web gate.
 - **Personas Active**: all ten. Grooming spawned all 10; the spike used database-engineer (lead) + project-engineer + it-architect; M26/M27 reviews used code-reviewer, qa-engineer, database-engineer, security-engineer; project-engineer drove every build pass.
-- **Beads Touched**: M26 epic `andante-4jp` + children `4jp.1–4jp.6` (closed); M27 epic `andante-p03` + children `p03.1–p03.13` incl. spike `p03.5` (impl closed, nits `.11/.12/.13` open); M28 epic `andante-fow` + `fow.1–fow.3` (planned); M29 epic `andante-68t` + `68t.1–68t.3` (planned); `andante-d15` (optional tag-writeback, open).
+- **Beads Touched**: M26 epic `project-c-4jp` + children `4jp.1–4jp.6` (closed); M27 epic `project-c-p03` + children `p03.1–p03.13` incl. spike `p03.5` (impl closed, nits `.11/.12/.13` open); M28 epic `project-c-fow` + `fow.1–fow.3` (planned); M29 epic `project-c-68t` + `68t.1–68t.3` (planned); `project-c-d15` (optional tag-writeback, open).
 
 ---
 
@@ -33,7 +33,7 @@ A smaller, second instance: answering the artist-shuffle question with **"Why no
 
 ## 4. What the Agent Got Wrong
 
-**I claimed I would "verify independently" but hadn't ensured I had the means to — my first independent M27 Pass A test run failed because the engineer had torn down its ephemeral test database, and I only then scrambled to provision one.** The Pass A engineer's report ended with "run alone on dedicated ephemeral PG/Redis now removed." I launched my independent full suite against the worktree — and it died at DB provisioning (`Connect call failed ('[IP]', 5432)`). I had to diagnose the failure, find the project's test-DB convention, stand up `andante-m27test-pg`/`-redis` myself, *then* run the verification. The verification discipline was sound; the *foresight* wasn't. "Engineer removed its DB" was right there in the report — I should have provisioned the controlled DB before declaring I'd independently verify, not after a failed run forced it.
+**I claimed I would "verify independently" but hadn't ensured I had the means to — my first independent M27 Pass A test run failed because the engineer had torn down its ephemeral test database, and I only then scrambled to provision one.** The Pass A engineer's report ended with "run alone on dedicated ephemeral PG/Redis now removed." I launched my independent full suite against the worktree — and it died at DB provisioning (`Connect call failed ('[IP]', 5432)`). I had to diagnose the failure, find the project's test-DB convention, stand up `project-c-m27test-pg`/`-redis` myself, *then* run the verification. The verification discipline was sound; the *foresight* wasn't. "Engineer removed its DB" was right there in the report — I should have provisioned the controlled DB before declaring I'd independently verify, not after a failed run forced it.
 
 Secondary, and more embarrassing for a session that was heavy on environment-control discipline: **I twice killed my own shell with `pkill -f` patterns that matched the very command running them** (once `"seq 1 120"`, once `"m27-album-metadata-matching/.venv/bin/pytest"`), each time exiting 144 mid-cleanup. Recovered immediately both times, but it's sloppy — `pkill -f` matches its own argv, and I knew that the second time.
 
@@ -62,8 +62,8 @@ Each was individually survivable, but together they cost real time and produced 
 
 ### IT Architect
 - **User value assessment**: The source-of-truth framing I brought to the spike (DB authoritative for *operator-decided grouping*, files authoritative for *content*) is what kept the durability design coherent and rejected tag-writeback — which would have failed on read-only mounts and couldn't express a same-title split.
-- **Session assessment**: Trade-offs were explicit and the provider-surface boundary held — I verified all of M26/M27 is `/api/v1`-only with zero Adagio/Xtream contract impact, which de-risked the whole effort.
-- **What I'd flag**: M29's IPTV-groups work *will* touch the Adagio category contract — that's a different risk class than M27 and needs me in the loop early.
+- **Session assessment**: Trade-offs were explicit and the provider-surface boundary held — I verified all of M26/M27 is `/api/v1`-only with zero project-a/Xtream contract impact, which de-risked the whole effort.
+- **What I'd flag**: M29's IPTV-groups work *will* touch the project-a category contract — that's a different risk class than M27 and needs me in the loop early.
 - **Disagreement**: None material this session; the DB-only mechanism I argued for is what shipped.
 
 ### Project Manager
@@ -95,7 +95,7 @@ This is worth its own line: the same MBID-index collision was seen by both, rate
 
 ### SRE
 - **User value assessment**: The savepoint fix directly protects the user's most important operation — a full library scan no longer aborts because of one bad file. And the `/play-history` diagnosis identified why a shipped feature (stats) is silently dead.
-- **Session assessment**: Reliability got real attention — the per-file savepoint, the soft-delete/tombstone correctness for Adagio sync, the `random-tracks` cap.
+- **Session assessment**: Reliability got real attention — the per-file savepoint, the soft-delete/tombstone correctness for project-a sync, the `random-tracks` cap.
 - **What I'd flag**: The recurring test-DB contention (Section 5) is an *operational* smell in the dev workflow itself. We kept stepping on a shared resource — the same class of incident the global CLAUDE.md "control the environment" rule was written about (M21b). We followed the rule reactively each time; we don't yet have the tooling to prevent it.
 - **Disagreement**: None, but I'd amplify the PM's marathon-session caution — late-session resource-handling errors are exactly the on-call-at-3am failure pattern.
 
@@ -106,7 +106,7 @@ This is worth its own line: the same MBID-index collision was seen by both, rate
 - **Disagreement**: I'll push back on any read that "QA was thorough so quality was high" — two real gaps (the flaky test, the missing URL/body assertions) reached late stages. Thorough volume, imperfect net.
 
 ### Technical Writer
-- **User value assessment**: ADR 0008 captures *why* manual grouping is DB-authoritative — that decision is non-obvious and would have been re-litigated without the record. OpenAPI snapshots stayed current for Adagio/third-party clients.
+- **User value assessment**: ADR 0008 captures *why* manual grouping is DB-authoritative — that decision is non-obvious and would have been re-litigated without the record. OpenAPI snapshots stayed current for project-a/third-party clients.
 - **Session assessment**: Decisions were captured (ADR, dense bead descriptions, the spike close-out).
 - **What I'd flag**: **The operator runbook for album matching never got written.** In grooming I flagged `runbooks/album-matching.md` ("when albums don't auto-match, here's how to merge/split, and whether it's reversible") as part of `p03.3`'s definition of done. ADR 0008 documents the *internals*; there is no operator-facing how-to for a destructive feature. The person harmed by this gap is the operator who merges the wrong albums and doesn't know if/how to recover. This should be filed.
 - **Disagreement**: I'd contest "M27 is complete." The code is complete; the operator documentation for a destructive, irreversible-ish feature is not.

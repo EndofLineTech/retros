@@ -4,13 +4,13 @@
 - **TurnCount**: ~25 user-direct + ~30 background task-notification turns since the prior retro (which covered M9 R1.X through morning-status). This retro covers the morning M16 finalization → M17 dual-review-with-blocker → M17 fix → ship → stop arc.
 - **SessionDepth**: deep — finalized M16, ran M17 full lifecycle (engineer → finalize → dual-review → fix iteration → merge), evaluated R1-R4 parallel orchestration plan, surfaced the cross-container FFmpeg registry blocker that Opus caught and QA missed
 - **Personas Active**: project-manager (orchestrator/me), project-engineer (Opus × 3 — M17 main + M17 finalize Sonnet + M17 fix-iter Opus), code-reviewer (Opus × 1 — M17), qa-engineer (Sonnet × 1 — M17), security-engineer (implicit — FFmpeg subprocess command-injection guard, cross-container registry leak class), it-architect (implicit — registry-locality decision, in-process-sweep vs Redis-backed-state design choice), sre (implicit — Beat-schedule cross-container failure mode, OOM-risk from leaked FFmpeg processes)
-- **Beads Touched**: andante-gwn.17 (M16) closed via orchestrator-finish; andante-gwn.18 (M17) opened → R1-CHANGES-REQUESTED → R2-fix → closed; backlog beads under .17 + .18 filed during reviews; M17 fix iter under .18 implicit subtasks
+- **Beads Touched**: project-c-gwn.17 (M16) closed via orchestrator-finish; project-c-gwn.18 (M17) opened → R1-CHANGES-REQUESTED → R2-fix → closed; backlog beads under .17 + .18 filed during reviews; M17 fix iter under .18 implicit subtasks
 
 ## 1. User Value Delivered
 
 **Two milestones shipped to `dev`** since the prior retro: **M16 IPTV ingest** (admin-managed audio IPTV sources, Fernet-encrypted credentials, hourly refresh, lenient M3U parsing) and **M17 IPTV proxy modes** (REDIRECT + HTTP_PROXY + FFMPEG dispatching).
 
-**Adagio Phase A is now functionally complete.** The iOS client team's integration target — M3U/EPG/Xtream provider surface (M13) + IPTV channel ingest (M16) + all three proxy modes (M17) — is fully shipped. Users with Adagio installed can now point it at an Andante instance and stream broadcast stations + ingested upstream IPTV channels through their existing iOS app, no Adagio code changes needed. That's a real integration milestone for a separate team.
+**project-a Phase A is now functionally complete.** The iOS client team's integration target — M3U/project-b/Xtream provider surface (M13) + IPTV channel ingest (M16) + all three proxy modes (M17) — is fully shipped. Users with project-a installed can now point it at an project-c instance and stream broadcast stations + ingested upstream IPTV channels through their existing iOS app, no project-a code changes needed. That's a real integration milestone for a separate team.
 
 **M17 R1's blocker was real ship-broken.** Without the cross-container registry fix, the Beat-scheduled FFmpeg sweeper would have reported `swept: 0` forever in production while FFmpeg processes piled up in the API container until OOM-kill. The dual-reviewer pattern caught it (Opus); QA's lens missed it (Sonnet approved). Total user value preserved: didn't ship a memory leak that would have surfaced as "the streaming server eventually dies under sustained IPTV load." Detection-via-review beats detection-via-production-incident by orders of magnitude.
 
@@ -83,7 +83,7 @@ This is durable enough to land in `~/.claude/skills/_shared/orchestration.md` on
 - **Disagreement**: None substantive — engineer's architectural choices held up.
 
 ### Project Manager (me, the orchestrator)
-- **User value assessment**: Two milestones shipped + Adagio Phase A functionally complete is real user-progress in a ~3-hour morning segment. The cross-container blocker would have shipped without dual-review.
+- **User value assessment**: Two milestones shipped + project-a Phase A functionally complete is real user-progress in a ~3-hour morning segment. The cross-container blocker would have shipped without dual-review.
 - **Session assessment**: The "stop after M17" instruction was honored cleanly. The fork-the-question moment on the blocker preserved PO autonomy and got a fast answer. The parallel-eval analysis was thorough but landed late.
 - **What I'd flag**: I committed engineer's uncommitted work on M16 as orchestrator and PO corrected the pattern. Held the line throughout M17 (re-spawned finalize engineer rather than orchestrator-pushing, ran pytest myself only for verification not to push engineer code). The correction held — that's the test.
 - **Disagreement**: I'd push back on the "engineer agents should run the 3-run pytest" expectation in the original engineer-brief template. It's the wrong work boundary — pytest is a process the orchestrator runs to verify, not a creative task the engineer needs to do. The brief change would simplify engineer responsibilities and avoid the "agent terminates mid-pytest" failure mode.
