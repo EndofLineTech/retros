@@ -104,3 +104,11 @@ A quota ledger. The session's most repeated mental operation was hand-estimating
 - **Stop**: Carrying a spike's minimal-capture design past the moment its goal widens. When the question changes from "what does this cost?" to "what could we build?", the capture schema must be revisited in the same breath.
 - **Start**: Writing a one-line decision charter at the top of any multi-hour spike ("this spike exists to decide X") — both parties drifted tonight because the charter was implicit. And a shared quota ledger for any key consumed by more than one process.
 - **Value learning**: The PO's product interest was never "the wall" — it was "is an project-f buildable?" Mechanics-framed requests from the PO are often proxies for a product decision; asking "what decision does this inform?" at kickoff is cheap and would have changed the first hour's design.
+
+## PO Response (post-retro)
+
+The PO disagreed with Section 3's framing, and on review the agent largely concedes: the iterative, step-through process got further than a single large scoped prompt would have. Each probe's findings generated the next question (the titles test and the market-gap test were unknowable at kickoff), and small steps kept every pivot cheap — the mid-run redirect and the early stop were only fast because the PO was steering between short iterations rather than approving a big plan upfront. A kickoff charter stating "assess feasibility" would have pre-scoped a route through an API whose behavior was still unknown.
+
+What survives of Section 3 after this correction: nothing on the PO's side. The durable lesson is agent-side only — when the PO's questions audibly shift from mechanics ("how much before lockout?") to product ("could we build X from this data?"), that shift is the signal to revisit what the running experiment captures. Goal drift is normal and productive in a spike; failing to re-derive design consequences from it is the miss.
+
+- **Lesson (amended)**: Iterative beats pre-scoped for exploratory spikes against unknown systems. Keep steps small enough that the PO's next question is cheap to act on — and treat each new question as a design-review trigger for anything still running.
