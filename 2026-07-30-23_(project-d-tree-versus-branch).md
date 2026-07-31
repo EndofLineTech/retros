@@ -134,3 +134,23 @@ There is a related pattern worth naming: this is the third time in one session t
 - **Start**: Pushing long-lived branches early so branch-triggered CI runs continuously. A hundred commits between pushes converts a small fix into a bisection.
 - **Start**: Writing announcements in the tense of what is *true now*, not what is expected shortly. "Has landed" was drafted while a PR sat open.
 - **Value learning**: The PO's request was "let people see the new UI." The thing that nearly prevented that was not any of the UI work — it was **a gap between what had been previewed and what had been committed**, invisible to every automated check, and discoverable only by asking whether the committed half of the codebase depended on the uncommitted half. When a working tree and a branch diverge for an entire session, the divergence itself is the risk, regardless of how good the work in it is.
+
+---
+
+## Postscript — written after the merge landed
+
+Section 1 above says nothing shipped. That was true when written and is no longer true; the PM persona predicted it would go stale within the hour, and it did. Correcting rather than leaving the record wrong, because the resolution is the most useful part of this retro.
+
+**It merged.** The branch is on the integration branch, the remote branch is deleted, and the operators it was for can now preview it.
+
+**CI earned its keep, and every one of its three findings was real** — which retires any argument that the local suite was an adequate substitute:
+
+1. **Four HIGH static-analysis alerts**, all in files the branch *adds*. One turned out to be a genuine false positive, and the agent proved it by exhaustively testing the pattern's idempotence over ~800k strings rather than accepting the rule's framing — then fixed it anyway, and rejected the tool's own suggested remedy because that one would have silently changed real documentation anchors while the job stayed green.
+2. **A release-matrix verifier that had drifted from the CSS it checks.** It derived an expected width by subtracting one pixel for a border that does not exist. It had never once run against this branch, because the branch had never had a PR. The fix deleted the offset entirely and asserted the invariant by name, rather than changing the subtraction to zero — swapping one silent assumption for another was explicitly rejected.
+3. **A timing test with inverted discrimination.** Measured: healthy 0.011s, genuinely broken 0.101s, loaded CI runner 0.79–0.97s. The noise band sat *entirely above* the signal band, so no threshold could both catch the regression and survive the load. Replaced with a mechanism assertion containing no clock, proven red two independent ways and each assertion shown falsifiable on its own.
+
+**A fourth finding came from a check that was not even required.** The default static-analysis annotation reported a warning that resolved to a *test double*: the project's `IntersectionObserver` mocks accept one constructor argument and silently discard the options object — so the margin that makes a section rail highlight the correct entry is thrown away in every unit test. Not a production bug; a test-fidelity gap of exactly the kind this session spent its length correcting. Filed.
+
+**And the near-miss verified in production.** The uncommitted-token defect described in Section 1 was confirmed fixed on the deployed image: the brand mark renders its dark ink in the light theme. Had that commit been left out, it would have fallen back to white on a near-white sidebar — invisible, to precisely the audience being invited to look.
+
+**What this changes about the lessons above.** Nothing is retracted, and one is sharpened: "Stop treating a green local gate suite as a prediction about CI" is understated. Three of the four findings were *structurally* invisible locally — two ran only in CI, and the third only fails under contention a developer machine does not reproduce. The gap is not thoroughness. It is that some properties are only observable in the environment that has them.
