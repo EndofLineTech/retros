@@ -21,7 +21,15 @@ The **decision cadence on the fix arc**. The PO answered every decision block wi
 
 ## Section 3: What the PO Could Improve
 
-**The /team-review of PR 765 arrived after the ship sequence had already run its review.** By the time the ceremony was invoked, the PR had a completed code-review round (approved, five dispositioned findings), independently re-verified gates, a posted review record, and a live end-to-end proof — and my message on the table was literally the merge ask. The ten-persona ceremony then re-reviewed the same 14-file diff. It did surface real value (the stale developer-API doc, the periodic-exercise gap flagged by three personas, the systemic contract-test question), but roughly half its output re-verified what the first round had already established, and one decision (finding dispositions) had to be re-collected because the ceremony superseded the pending version of the same question. If the intent was always "this fix gets the full team treatment," saying so at the "Yes, authorized" moment — before the single-reviewer round — would have gotten the same findings for roughly half the total review spend and avoided asking the PO the disposition question twice.
+*(Corrected after PO pushback — the first draft of this section overstated the case, and the correction is itself the lesson; see below.)*
+
+**Original claim**: the /team-review of the fix PR, invoked after the ship sequence's code-review round, gates, and live proof, duplicated review work and re-collected a pending decision.
+
+**PO's counter, which holds**: a single code-reviewer dispatch is not as thorough as a team review — the ceremony was a deliberate deeper dive, not a repeat. Checking the actual output distribution confirms it: nine of ten lenses (security trace, architect systemic view, PM/SRE/QA convergence on the unexercised-restore gap, writer's stale-API-doc catch, DBA transaction semantics, UX failure-message assessment) ran for the first time and produced most of the ceremony's action items. The true overlap was one seat — the ceremony's code-reviewer re-covering an already-reviewed diff — and the disposition double-ask was substantially the agent's own artifact (the disposition question was put on the table in the same message as the merge ask, so any intervening ceremony would supersede it).
+
+**What survives as feedback, much narrower**: when a full team review is planned for a fix, saying so at authorization time lets the orchestrator make the ceremony's code-reviewer seat the *only* code pass — saving exactly one duplicated dispatch, not half the spend. And the ordering had a real upside the first draft ignored: the ship-round review plus live proof gave the ceremony a verified premise to review against.
+
+**The meta-lesson** (arguably the more durable one): the agent's Section-3 instinct pattern-matched "ceremony after ship sequence" to "duplication" without checking the output distribution first — the same verify-before-claiming bar that applies to briefs applies to retro feedback aimed at the PO.
 
 ## Section 4: What the Agent Got Wrong
 
@@ -50,7 +58,7 @@ Runner-up: I told the PO the failure "points at endpoint drift" before dispatchi
 ### Project Manager
 - **User value assessment**: High throughput to real outcomes, but note the ratio: one merged fix and ~9 new backlog items. Backlog growth was PO-authorized at each step, yet the board now carries a "restore round-trip" story spread across six beads with no epic grouping — my grouping recommendation from the review was not adopted this session.
 - **Session assessment**: Decision hygiene was excellent (numbered blocks, fast answers). My pre-merge ask to close the missing-test finding was overruled per review-history discipline; process-correct, and the dissent was recorded rather than averaged away — that's how it should work.
-- **What I'd flag**: The disposition question was asked twice (pre-ceremony and post-ceremony) because the team review was invoked after the ship sequence — sequencing cost a PO round-trip and duplicated review spend.
+- **What I'd flag**: The disposition question was asked twice (pre-ceremony and post-ceremony) — largely because the orchestrator bundled it with the merge ask right as the ceremony was invoked. Actual review duplication was one seat (the ceremony's code-reviewer), not the fleet; see corrected Section 3.
 - **Disagreement**: I still hold that a five-minute test closing the exact original failure signature belonged in the fix PR. The counter-rule won; the cost is that kahzn now carries merge risk for a test that had a free ride available.
 
 ### Project Engineer
